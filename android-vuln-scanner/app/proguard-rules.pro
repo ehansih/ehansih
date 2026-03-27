@@ -1,0 +1,6 @@
+-keep class com.nokia.vulnscanner.data.** { *; }
+-keep class com.nokia.vulnscanner.data.api.** { *; }
+-keepattributes Signature
+-keepattributes *Annotation*
+-dontwarn okhttp3.**
+-dontwarn retrofit2.**
