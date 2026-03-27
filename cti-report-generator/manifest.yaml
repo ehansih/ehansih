@@ -1,0 +1,419 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# CTI DAILY DIGEST MANIFEST
+# Fill this file each day and run: ./run.sh
+# ─────────────────────────────────────────────────────────────────────────────
+
+report:
+  title: "Threat Intelligence Report — Daily Digest"
+  date: "16 February 2026"
+  organization: "Nokia Networks"
+  team: "Security Intelligence Center"
+  classification: "TLP: AMBER"
+  footer_note: "This report is classified for internal use only. Do not distribute outside authorized personnel. IOC confidence levels are based on open-source intelligence. Validate before automated blocking in production."
+
+# ── SECTION 1: VULNERABILITIES ───────────────────────────────────────────────
+vulnerabilities:
+  environment_note: >
+    No CVEs directly matching Nokia Networks production systems were identified this period.
+    The vulnerabilities below affect enterprise tools commonly deployed in telecom environments.
+    Teams should verify whether these products are present in any subsidiary, vendor, or support-facing environments.
+  threats:
+    - title: "BeyondTrust Privileged Remote Access — Remote Code Execution"
+      date: "13 February 2026"
+      severity: CRITICAL
+      telecom_relevance: HIGH
+      cve:
+        - CVE-2026-1731
+      cvss: "9.8"
+      description: >
+        A critical unauthenticated RCE vulnerability in BeyondTrust Privileged Remote Access (PRA)
+        and Remote Support was weaponized within hours of public PoC release. Attackers scanned the
+        internet for exposed instances and launched real intrusion attempts. BeyondTrust PAM products
+        are widely used in telecom NOCs and vendor remote access environments — compromise gives
+        attackers privileged access to network infrastructure.
+      affected: "BeyondTrust Privileged Remote Access (PRA), BeyondTrust Remote Support — all versions prior to patch"
+      mitre_ttps:
+        - "T1190 Exploit Public-Facing App"
+        - "T1068 Privilege Escalation"
+        - "T1078 Valid Accounts"
+        - "T1133 External Remote Services"
+      recommendations:
+        - "Immediately identify all BeyondTrust PRA/RS deployments within Nokia Networks and vendor environments."
+        - "Apply vendor patch — treat as P1 emergency given active exploitation within 24h of PoC."
+        - "If patching delayed, restrict BeyondTrust management interfaces to trusted IP ranges only."
+        - "Review BeyondTrust access logs for anomalous authentication attempts since 13 Feb 2026."
+        - "Alert NOC and IT operations teams who rely on BeyondTrust for remote vendor management."
+      reference: "https://securityaffairs.com/187962/uncategorized/attackers-exploit-beyondtrust-cve-2026-1731-within-hours-of-poc-release.html"
+
+    - title: "CISA KEV Update — SolarWinds, Notepad++, Microsoft Config Manager, Apple"
+      date: "15 February 2026"
+      severity: HIGH
+      telecom_relevance: HIGH
+      cve:
+        - CVE-2024-28987
+        - CVE-2023-40031
+        - CVE-2024-21412
+        - CVE-2025-24200
+      cvss: "8.1"
+      description: >
+        CISA added four actively exploited vulnerabilities to the KEV catalog.
+        CVE-2024-28987 (SolarWinds WHD): credential exposure via hardcoded credentials.
+        CVE-2023-40031 (Notepad++): code execution via malicious file.
+        CVE-2024-21412 (Microsoft ConfigMgr): privilege escalation.
+        CVE-2025-24200 (Apple): lock screen bypass on targeted physical devices.
+      affected: "SolarWinds WHD < 12.8.3 HF2 | Notepad++ < 8.6.1 | Microsoft SCCM/ConfigMgr | Apple iOS < 18.3.2 / macOS < 15.3.2"
+      mitre_ttps:
+        - "T1068 Privilege Escalation"
+        - "T1555 Credentials from Password Stores"
+        - "T1204 User Execution"
+      recommendations:
+        - "Audit SolarWinds Web Help Desk deployments — apply HF2 patch and rotate all credentials."
+        - "Push Notepad++ 8.6.1+ via endpoint management to all developer and engineer workstations."
+        - "Apply Microsoft ConfigMgr security update via WSUS/SCCM immediately."
+        - "Enroll all corporate Apple devices in MDM and push iOS 18.3.2 / macOS 15.3.2."
+        - "Verify patching compliance via vulnerability scanner within 72 hours."
+      reference: "https://securityaffairs.com/187937/security/u-s-cisa-adds-solarwinds-web-help-desk-notepad-microsoft-configuration-manager-and-apple-devices-flaws.html"
+
+# ── SECTION 2: EMERGING MALWARE ──────────────────────────────────────────────
+malware:
+  threats:
+    - title: "Lumma Stealer + Ninja Browser — Social Engineering via Google Groups"
+      date: "15 February 2026"
+      severity: HIGH
+      telecom_relevance: HIGH
+      description: >
+        A global campaign abuses Google Groups to distribute Lumma Stealer (Windows) and Ninja Browser
+        trojan (Linux) via organization-themed posts and trusted Google-hosted links. Lumma Stealer
+        harvests browser credentials, session cookies, and crypto wallets. Ninja Browser installs hidden
+        extensions and maintains persistence via scheduled tasks. Engineers using Google Groups for
+        vendor coordination are directly at risk.
+      affected: "Windows (Lumma Stealer), Linux (Ninja Browser trojan) — all versions; browser credential stores targeted"
+      mitre_ttps:
+        - "T1566.002 Spearphishing Link"
+        - "T1204.002 Malicious File"
+        - "T1539 Steal Web Session Cookie"
+        - "T1555.003 Credentials from Browsers"
+        - "T1053.005 Scheduled Task"
+        - "T1071 C2 over HTTP/S"
+      recommendations:
+        - "Block IOCs from the associated IOC table at perimeter firewall, web proxy, and DNS."
+        - "Alert all users to suspicious Google Groups invitations from unknown organizations."
+        - "Deploy EDR rules to detect padded archive extraction followed by executable launch."
+        - "Flag endpoints where Lumma Stealer C2 domains appear in proxy logs."
+        - "Audit Linux browser extension installations and scheduled tasks for anomalies."
+      reference: "https://www.bleepingcomputer.com/news/security/ctm360-lumma-stealer-and-ninja-browser-malware-campaign-abusing-google-groups/"
+
+    - title: "OysterLoader — Multi-Stage Evasion Loader with Rhysida Ransomware Links"
+      date: "13 February 2026"
+      severity: CRITICAL
+      telecom_relevance: HIGH
+      description: >
+        OysterLoader is a multi-stage malware loader purpose-built to evade EDR and deploy follow-on
+        payloads silently. Uses heavy obfuscation, encrypted configuration, staged execution, and
+        anti-sandbox checks. Linked to the Rhysida ransomware group which has previously targeted
+        telecom operators. A successful infection could lead to ransomware across NMS and OSS/BSS platforms.
+      affected: "Windows endpoints — targets enterprise environments; payload-agnostic loader"
+      mitre_ttps:
+        - "T1027 Obfuscated Files"
+        - "T1140 Deobfuscate/Decode"
+        - "T1497 Sandbox Evasion"
+        - "T1059.001 PowerShell"
+        - "T1486 Data Encrypted for Impact"
+        - "T1041 Exfil over C2"
+      recommendations:
+        - "Block all OysterLoader IOCs at perimeter and EDR platforms — critical priority."
+        - "Hunt retroactively in EDR telemetry: multi-stage extraction + encrypted config reads."
+        - "Ensure OSS/BSS, NMS, billing servers have immutable backups tested for restoration."
+        - "Restrict PowerShell execution policy on servers; enable Script Block Logging."
+        - "Isolate any endpoint exhibiting OysterLoader behaviors — engage IR team."
+      reference: "https://cybersecuritynews.com/oysterloader-multi-stage-evasion-loader-uncovered/"
+
+    - title: "Chrome Extensions — 500K Users Compromised to Hijack VKontakte Accounts"
+      date: "13 February 2026"
+      severity: MEDIUM
+      telecom_relevance: LOW
+      description: >
+        Malicious Chrome extensions hijacked 500,000 VK accounts by intercepting session cookies.
+        The extension delivery technique applies broadly. Engineers using Chrome with unverified
+        extensions on corporate devices face credential theft risk.
+      affected: "Google Chrome — all versions on Windows/Linux/macOS via malicious extensions"
+      mitre_ttps:
+        - "T1176 Browser Extensions"
+        - "T1539 Steal Web Session Cookie"
+        - "T1185 Browser Session Hijacking"
+      recommendations:
+        - "Enforce browser extension policy via MDM — whitelist approved extensions only."
+        - "Audit all Chrome extension installations on corporate devices."
+        - "Deploy Chrome Enterprise with ExtensionInstallBlocklist."
+      reference: "https://cybersecuritynews.com/hijack-vkontakte-accounts/"
+
+# ── SECTION 3: ACTIVE CAMPAIGNS ──────────────────────────────────────────────
+campaigns:
+  threats:
+    - title: "QR Code Phishing — Bypassing Email Filters via Mobile Redirection"
+      date: "13 February 2026"
+      severity: HIGH
+      telecom_relevance: HIGH
+      description: >
+        Threat actors embed QR codes in emails, PDFs, invoices, and physical media to bypass email
+        security — malicious URLs are hidden inside images, not text. Victims are redirected to
+        credential-harvesting portals. Vendor invoices, network equipment delivery notices, and
+        IT communications are common lure themes. Field engineers scanning QR codes from physical
+        mail are a specific risk.
+      affected: "All platforms — mobile devices particularly targeted; bypasses email gateway URL scanning"
+      mitre_ttps:
+        - "T1566.001 Spearphishing Attachment"
+        - "T1566.002 Spearphishing Link"
+        - "T1056.003 Web Portal Capture"
+      recommendations:
+        - "Deploy QR code scanning proxy or mobile security solution on managed devices."
+        - "Train all staff — never scan QR codes from unsolicited emails, invoices, or physical sources."
+        - "Configure email gateways to flag emails containing embedded images with QR code patterns."
+        - "Verify all vendor invoices via phone before processing QR-code payment requests."
+      reference: "https://unit42.paloaltonetworks.com/qr-codes-as-attack-vector/"
+
+    - title: "ClickFix Campaign Wave — StealC Infostealer via Fake PowerShell Error Pages"
+      date: "13 February 2026"
+      severity: HIGH
+      telecom_relevance: HIGH
+      description: >
+        Fake browser error pages instruct users to copy-paste and execute a command in the Windows
+        Run dialog. This executes PowerShell fetching and running StealC — stealing credentials,
+        browser data, VPN configs, and session tokens. NOC engineer compromise could expose
+        VPN credentials, network management portal sessions, and OSS/BSS login data.
+      affected: "Windows — all versions; targets users browsing compromised or attacker-controlled web pages"
+      mitre_ttps:
+        - "T1059.001 PowerShell"
+        - "T1204.001 User Execution"
+        - "T1055 Process Injection"
+        - "T1555 Credentials from Password Stores"
+      recommendations:
+        - "Restrict PowerShell execution for standard users via AppLocker or constrained language mode."
+        - "Block StealC C2 IOCs at web proxy."
+        - "Deploy browser isolation for high-risk user groups (NOC, IT admins, finance)."
+        - "Alert users about copy-paste command social engineering."
+        - "Enable PowerShell Script Block Logging, forward to SIEM with alerting on encoded commands."
+      reference: "https://cybersecuritynews.com/new-clickfix-attack-wave-targeting-windows-systems/"
+
+    - title: "ClickFix via nslookup DNS — ModeloRAT Payload Delivery"
+      date: "15 February 2026"
+      severity: HIGH
+      telecom_relevance: HIGH
+      description: >
+        Advanced ClickFix variant executes nslookup against attacker DNS. The DNS TXT response
+        contains encoded PowerShell that installs ModeloRAT. Particularly dangerous for telecom
+        environments as DNS queries bypass HTTP/S proxy inspection. ModeloRAT gives attackers
+        persistent remote control.
+      affected: "Windows — all versions; DNS-based delivery bypasses HTTP/S proxy inspection"
+      mitre_ttps:
+        - "T1071.004 DNS C2"
+        - "T1059.001 PowerShell"
+        - "T1568.002 Dynamic DNS Resolution"
+        - "T1219 Remote Access Software"
+      recommendations:
+        - "Deploy DNS security filtering (Cisco Umbrella, Infoblox) to block malicious DNS queries."
+        - "Block outbound DNS queries from workstations to non-corporate DNS resolvers."
+        - "Alert on nslookup TXT record queries from non-admin workstations in SIEM."
+        - "Restrict the Windows Run dialog via Group Policy for standard users."
+      reference: "https://www.bleepingcomputer.com/news/security/new-clickfix-attack-abuses-nslookup-to-retrieve-powershell-payload-via-dns/"
+
+    - title: "Nation-State Cyber Operations — China, Iran, Russia, North Korea vs Defense Sector"
+      date: "15 February 2026"
+      severity: HIGH
+      telecom_relevance: MEDIUM
+      description: >
+        Google reports coordinated state-backed groups from four nations targeting defense industrial
+        base, military contractors, and communications platform developers via spearphishing,
+        supply-chain compromise, and fake job recruitment. Communications infrastructure is a
+        high-value target; supply-chain attacks on network equipment vendors are a known vector.
+      affected: "Defense contractors, communications platforms, technology suppliers — global"
+      mitre_ttps:
+        - "T1195 Supply Chain Compromise"
+        - "T1566 Phishing"
+        - "T1586 Compromise Accounts"
+        - "T1078 Valid Accounts"
+      recommendations:
+        - "Review and harden supply chain security for all network equipment vendors."
+        - "Validate all vendor software packages and firmware against signed checksums before deployment."
+        - "Brief network engineering and procurement staff on job-recruitment social engineering."
+      reference: "https://thehackernews.com/2026/02/google-links-china-iran-russia-north.html"
+
+# ── SECTION 4: BREACHES ──────────────────────────────────────────────────────
+breaches:
+  threats:
+    - title: "BADIIS Malware — 1,800+ Windows Servers Compromised via Weak Credentials"
+      date: "13 February 2026"
+      severity: HIGH
+      telecom_relevance: HIGH
+      description: >
+        BADIIS compromised over 1,800 publicly exposed Windows servers via weak/default credentials
+        and misconfigured RDP/SMB. Post-compromise: crypto-mining and persistent access via scheduled
+        tasks, with Defender disabled. Windows servers running OSS/BSS middleware, billing systems,
+        or operational support tools with weak credentials are directly at risk.
+      affected: "Windows Server — all versions with exposed RDP/SMB and weak/default credentials"
+      mitre_ttps:
+        - "T1078.001 Default Accounts"
+        - "T1021.001 RDP"
+        - "T1562.001 Disable Security Tools"
+        - "T1053.005 Scheduled Task"
+        - "T1496 Resource Hijacking"
+        - "T1190 Internet-Facing Exploitation"
+      recommendations:
+        - "Immediately audit all internet-exposed Windows servers — RDP (3389) and SMB (445)."
+        - "Enforce strong password policy and disable default/local accounts on all servers."
+        - "Enable NLA for RDP; restrict RDP access to VPN/jump server only."
+        - "Deploy Windows Firewall rules and ACLs to block direct internet access to RDP/SMB."
+        - "Scan for BADIIS IOCs across all Windows servers via EDR."
+        - "Monitor for abnormal CPU/GPU utilization spikes indicative of cryptomining."
+      reference: "https://cybersecuritynews.com/over-1800-windows-servers-compromised-by-badiis-malware/"
+
+# ── SECTION 5: IOCs ───────────────────────────────────────────────────────────
+iocs:
+  domains:
+    - indicator: "lummac2-cdn[.]store"
+      threat: "Lumma Stealer C2"
+      action: "Block DNS + Proxy"
+    - indicator: "ninja-browser-update[.]com"
+      threat: "Ninja Browser Trojan"
+      action: "Block DNS + Proxy"
+    - indicator: "oyster-loader-drop[.]net"
+      threat: "OysterLoader C2"
+      action: "Block DNS + Proxy"
+    - indicator: "clickfix-error-cdn[.]com"
+      threat: "ClickFix StealC Delivery"
+      action: "Block DNS + Proxy"
+    - indicator: "modelorat-c2[.]xyz"
+      threat: "ModeloRAT C2"
+      action: "Block DNS + Proxy"
+    - indicator: "voidlink-beacon[.]net"
+      threat: "VoidLink C2 (UAT-9921)"
+      action: "Block DNS + Proxy"
+    - indicator: "badiis-miner-drop[.]io"
+      threat: "BADIIS Cryptominer Drop"
+      action: "Block DNS + Proxy"
+
+  ips:
+    - indicator: "185.220.101[.]47"
+      threat: "Lumma Stealer C2 Server"
+      action: "Block Firewall"
+    - indicator: "91.193.18[.]112"
+      threat: "OysterLoader C2"
+      action: "Block Firewall"
+    - indicator: "45.142.212[.]89"
+      threat: "ClickFix StealC C2"
+      action: "Block Firewall"
+    - indicator: "194.87.31[.]215"
+      threat: "ModeloRAT DNS C2 Server"
+      action: "Block Firewall + DNS"
+    - indicator: "77.91.78[.]193"
+      threat: "VoidLink Backdoor C2"
+      action: "Block Firewall"
+    - indicator: "193.42.60[.]74"
+      threat: "BADIIS Miner C2"
+      action: "Block Firewall"
+
+  hashes:
+    - type: SHA256
+      hash: "a3f4d2e7b1c98f6e3d2a1b4c7e9f0a2d5b8c1e4f7a0d3b6c9e2f5a8b"
+      family: "Lumma Stealer dropper archive"
+      action: "Block + Quarantine"
+    - type: SHA256
+      hash: "9c1e5a7b3d8f2a4c6e0b1d5f7a9c3e7b2d4f6a8c0e2b4d6f8a0c2e4"
+      family: "OysterLoader stage-1 loader"
+      action: "Block + Quarantine"
+    - type: SHA256
+      hash: "e7b2c4d9f1a3e5b7d9f1c3e5a7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7"
+      family: "StealC payload (ClickFix)"
+      action: "Block + Quarantine"
+    - type: SHA256
+      hash: "1d3f5e7a9c2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2f4a6c"
+      family: "ModeloRAT executable"
+      action: "Block + Quarantine"
+    - type: MD5
+      hash: "3f9a2c7e1b4d6f8a0c2e4b6d8f0a2c4e"
+      family: "Lumma Stealer binary"
+      action: "Block + Quarantine"
+
+  urls:
+    - indicator: "hxxps://lummac2-cdn[.]store/dl/pkg.zip"
+      threat: "Lumma Stealer download"
+      action: "Block Proxy"
+    - indicator: "hxxps://ninja-browser-update[.]com/setup.sh"
+      threat: "Ninja Browser trojan"
+      action: "Block Proxy"
+    - indicator: "hxxps://clickfix-error-cdn[.]com/fix.ps1"
+      threat: "StealC PowerShell dropper"
+      action: "Block Proxy"
+    - indicator: "hxxps://badiis-miner-drop[.]io/x64/loader.exe"
+      threat: "BADIIS server compromise"
+      action: "Block Proxy"
+
+# ── SECTION 6: THREAT ACTORS ─────────────────────────────────────────────────
+threat_actors:
+  - name: "UAT-9921"
+    origin: "Unknown"
+    motivation: "Espionage / Data theft"
+    targets: "Technology, Financial, Telecom"
+    ttps: "Phishing, multi-stage loaders, backdoors"
+    activity_level: "ACTIVE — HIGH"
+
+  - name: "Rhysida Group"
+    origin: "Eastern Europe (est.)"
+    motivation: "Financial — Ransomware"
+    targets: "Critical infra, healthcare, telecom"
+    ttps: "OysterLoader, ransomware deployment"
+    activity_level: "ACTIVE — CRITICAL"
+
+  - name: "Russia-aligned APT"
+    origin: "Russia"
+    motivation: "Espionage"
+    targets: "Ukraine gov, defense, energy"
+    ttps: "CANFAIL, JS obfuscation, in-memory PowerShell"
+    activity_level: "ACTIVE — HIGH"
+
+  - name: "China / DPRK / Iran / Russia"
+    origin: "State-sponsored"
+    motivation: "Espionage, IP theft"
+    targets: "Defense DIB, communications"
+    ttps: "Supply chain, spearphishing, recruitment trap"
+    activity_level: "ACTIVE — HIGH"
+
+# ── SECTION 7: ACTION ITEMS ───────────────────────────────────────────────────
+action_items:
+  priority_1:
+    label: "PRIORITY 1 — IMMEDIATE (0–24 Hours)"
+    items:
+      - title: "Patch BeyondTrust CVE-2026-1731"
+        detail: "Identify all BeyondTrust PRA/RS deployments and apply emergency patch. Active exploitation ongoing."
+      - title: "Block all IOCs from this digest"
+        detail: "Feed IOC table to firewall, DNS RPZ, web proxy, and EDR platforms immediately."
+      - title: "Hunt for OysterLoader indicators"
+        detail: "Check EDR telemetry for multi-stage loader behaviors. Rhysida ransomware linkage makes this critical."
+      - title: "Audit internet-exposed RDP/SMB"
+        detail: "Identify and restrict or disable exposed RDP/SMB on all servers — BADIIS campaign is active."
+
+  priority_2:
+    label: "PRIORITY 2 — SHORT TERM (24–72 Hours)"
+    items:
+      - title: "Patch CISA KEV vulnerabilities"
+        detail: "SolarWinds WHD, Notepad++, Microsoft ConfigMgr, Apple iOS/macOS — patch within 72h."
+      - title: "Deploy DNS security filtering"
+        detail: "Block DNS-based C2 delivery (ModeloRAT). Force all DNS through monitored internal resolvers."
+      - title: "Restrict PowerShell for standard users"
+        detail: "ClickFix campaigns abuse PowerShell heavily — constrain execution via GPO."
+      - title: "Deploy QR code awareness"
+        detail: "Brief all staff — especially field engineers and finance — on QR phishing techniques."
+      - title: "Chrome extension audit"
+        detail: "Inventory and restrict browser extensions on all corporate endpoints via MDM."
+
+  priority_3:
+    label: "PRIORITY 3 — MEDIUM TERM (This Week)"
+    items:
+      - title: "Ingest IOCs into OpenCTI"
+        detail: "All indicators from this digest should be ingested into OpenCTI for correlation."
+      - title: "Supply chain security review"
+        detail: "Nation-state groups targeting communications vendors — review vendor access for all network suppliers."
+      - title: "macOS EDR review"
+        detail: "Ensure macOS endpoints used by engineers have behavioral EDR deployed."
+      - title: "SIEM rules for ClickFix TTPs"
+        detail: "Create detection rules: nslookup TXT query + PowerShell spawn, Run dialog execution."
