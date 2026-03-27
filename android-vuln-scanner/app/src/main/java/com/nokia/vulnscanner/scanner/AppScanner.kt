@@ -9,6 +9,7 @@ import com.nokia.vulnscanner.data.api.bestCvssScore
 import com.nokia.vulnscanner.data.api.englishDescription
 import com.nokia.vulnscanner.data.db.CveDao
 import com.nokia.vulnscanner.data.models.*
+import com.nokia.vulnscanner.data.models.AppLogger
 import kotlinx.coroutines.delay
 
 class AppScanner(
@@ -59,7 +60,7 @@ class AppScanner(
     )
 
     suspend fun scanInstalledApps(
-        onProgress: (current: Int, total: Int, appName: String) -> Unit
+        onProgress: suspend (current: Int, total: Int, appName: String) -> Unit
     ): List<AppScanResult> {
         val pm = context.packageManager
         val packages = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -76,14 +77,17 @@ class AppScanner(
         // Skip system packages that have no APK on data partition
         val userPackages = packages.filter { it.applicationInfo != null }
 
+        AppLogger.i("AppScanner", "Scanning ${userPackages.size} installed packages")
         val results = mutableListOf<AppScanResult>()
         userPackages.forEachIndexed { idx, pkg ->
             val appName = pm.getApplicationLabel(pkg.applicationInfo!!).toString()
             onProgress(idx + 1, userPackages.size, appName)
+            AppLogger.d("AppScanner", "[${idx+1}/${userPackages.size}] Scanning: $appName")
             results.add(scanSingleApp(pm, pkg, appName))
             // Respect NVD rate limit — 5 req/s unauthenticated, be conservative
             delay(250)
         }
+        AppLogger.i("AppScanner", "App scan complete — ${results.count { it.riskScore > 0 }} risky apps found")
         return results
     }
 
@@ -185,7 +189,7 @@ class AppScanner(
             if (records.isNotEmpty()) cveDao.insertAll(records)
             records
         } catch (e: Exception) {
-            android.util.Log.e("AppScanner", "CVE lookup failed for '$keyword'", e)
+            AppLogger.e("AppScanner", "CVE lookup failed for '$keyword': ${e.message}", e)
             emptyList()
         }
     }

@@ -2,6 +2,7 @@ package com.nokia.vulnscanner.scanner
 
 import android.content.Context
 import android.net.ConnectivityManager
+import com.nokia.vulnscanner.data.models.AppLogger
 import android.net.NetworkCapabilities
 import android.net.VpnService
 import android.net.wifi.WifiManager
@@ -15,6 +16,7 @@ import java.net.Proxy
 class NetworkScanner(private val context: Context) {
 
     fun scan(): NetworkSecurityResult {
+        AppLogger.i("NetworkScanner", "Starting network scan")
         val cm      = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val wifiMgr = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
@@ -70,6 +72,7 @@ class NetworkScanner(private val context: Context) {
                              "Proxy → set to None unless you intentionally configured this."
         ))
 
+        AppLogger.i("NetworkScanner", "Network scan complete — SSID=$ssid type=$secType VPN=$isVpn findings=${findings.size}")
         return NetworkSecurityResult(
             ssid         = ssid,
             bssid        = bssid,

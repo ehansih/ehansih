@@ -42,7 +42,8 @@ private val navItems = listOf(
     NavItem("home",    "Dashboard", Icons.Default.Dashboard),
     NavItem("device",  "Device",    Icons.Default.PhoneAndroid),
     NavItem("apps",    "Apps",      Icons.Default.Apps),
-    NavItem("network", "Network",   Icons.Default.Wifi)
+    NavItem("network", "Network",   Icons.Default.Wifi),
+    NavItem("logs",    "Logs",      Icons.Default.Terminal)
 )
 
 @Composable
@@ -110,6 +111,9 @@ fun VulnScannerApp(viewModel: ScanViewModel) {
             }
             composable("network") {
                 NetworkScreen(uiState.summary?.networkResult)
+            }
+            composable("logs") {
+                LogsScreen()
             }
         }
     }

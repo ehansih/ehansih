@@ -11,6 +11,7 @@ import com.nokia.vulnscanner.data.api.bestCvssScore
 import com.nokia.vulnscanner.data.api.englishDescription
 import com.nokia.vulnscanner.data.db.CveDao
 import com.nokia.vulnscanner.data.models.*
+import com.nokia.vulnscanner.data.models.AppLogger
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -21,6 +22,7 @@ class DeviceSecurityScanner(
     private val cveDao: CveDao
 ) {
     suspend fun scan(): DeviceSecurityResult {
+        AppLogger.i("DeviceScanner", "Starting device security scan")
         val isRooted           = checkRoot()
         val isDevMode          = checkDeveloperMode()
         val isUsbDebug         = checkUsbDebugging()
@@ -115,6 +117,9 @@ class DeviceSecurityScanner(
 
         val secScore = calculateDeviceScore(isRooted, isDevMode, isUsbDebug, unknownSources,
                                             screenLock, encrypted, biometric, verifyApps, patchDate, osVulns)
+
+        AppLogger.i("DeviceScanner", "Device scan complete — score: $secScore, findings: ${findings.size}, OS CVEs: ${osVulns.size}")
+        AppLogger.d("DeviceScanner", "Rooted=$isRooted DevMode=$isDevMode UsbDebug=$isUsbDebug ScreenLock=$screenLock Encrypted=$encrypted Biometric=$biometric")
 
         return DeviceSecurityResult(
             androidVersion         = androidVer,
@@ -226,7 +231,7 @@ class DeviceSecurityScanner(
             if (records.isNotEmpty()) cveDao.insertAll(records)
             records
         } catch (e: Exception) {
-            android.util.Log.e("DeviceScanner", "OS CVE lookup failed for '$keyword'", e)
+            AppLogger.e("DeviceScanner", "OS CVE lookup failed for '$keyword': ${e.message}", e)
             emptyList()
         }
     }
