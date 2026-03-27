@@ -1,10 +1,10 @@
-package com.nokia.vulnscanner.scanner
+package com.ehansih.vulnscanner.scanner
 
 import android.content.Context
-import com.nokia.vulnscanner.data.api.RetrofitClient
-import com.nokia.vulnscanner.data.db.CveDatabase
-import com.nokia.vulnscanner.data.models.AppLogger
-import com.nokia.vulnscanner.data.models.*
+import com.ehansih.vulnscanner.data.api.RetrofitClient
+import com.ehansih.vulnscanner.data.db.CveDatabase
+import com.ehansih.vulnscanner.data.models.AppLogger
+import com.ehansih.vulnscanner.data.models.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 

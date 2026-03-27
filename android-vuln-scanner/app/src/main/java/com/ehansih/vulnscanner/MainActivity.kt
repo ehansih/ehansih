@@ -1,4 +1,4 @@
-package com.nokia.vulnscanner
+package com.ehansih.vulnscanner
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,9 +17,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
-import com.nokia.vulnscanner.ui.screens.*
-import com.nokia.vulnscanner.ui.theme.*
-import com.nokia.vulnscanner.viewmodel.ScanViewModel
+import com.ehansih.vulnscanner.ui.screens.*
+import com.ehansih.vulnscanner.ui.theme.*
+import com.ehansih.vulnscanner.viewmodel.ScanViewModel
 
 class MainActivity : ComponentActivity() {
 

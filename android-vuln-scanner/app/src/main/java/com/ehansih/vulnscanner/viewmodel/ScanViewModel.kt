@@ -1,11 +1,11 @@
-package com.nokia.vulnscanner.viewmodel
+package com.ehansih.vulnscanner.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.nokia.vulnscanner.data.models.ScanSummary
-import com.nokia.vulnscanner.scanner.ScanOrchestrator
-import com.nokia.vulnscanner.scanner.ScanState
+import com.ehansih.vulnscanner.data.models.ScanSummary
+import com.ehansih.vulnscanner.scanner.ScanOrchestrator
+import com.ehansih.vulnscanner.scanner.ScanState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 

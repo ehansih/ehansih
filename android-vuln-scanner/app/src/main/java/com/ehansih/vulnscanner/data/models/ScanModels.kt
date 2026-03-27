@@ -1,4 +1,4 @@
-package com.nokia.vulnscanner.data.models
+package com.ehansih.vulnscanner.data.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

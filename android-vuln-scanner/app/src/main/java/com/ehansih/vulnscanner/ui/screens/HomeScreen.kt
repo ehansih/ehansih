@@ -1,4 +1,4 @@
-package com.nokia.vulnscanner.ui.screens
+package com.ehansih.vulnscanner.ui.screens
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -18,13 +18,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nokia.vulnscanner.data.models.Severity
-import com.nokia.vulnscanner.data.models.ScanSummary
-import com.nokia.vulnscanner.ui.components.ScoreGauge
-import com.nokia.vulnscanner.ui.components.SeverityBadge
-import com.nokia.vulnscanner.ui.components.severityColor
-import com.nokia.vulnscanner.ui.theme.*
-import com.nokia.vulnscanner.viewmodel.ScanUiState
+import com.ehansih.vulnscanner.data.models.Severity
+import com.ehansih.vulnscanner.data.models.ScanSummary
+import com.ehansih.vulnscanner.ui.components.ScoreGauge
+import com.ehansih.vulnscanner.ui.components.SeverityBadge
+import com.ehansih.vulnscanner.ui.components.severityColor
+import com.ehansih.vulnscanner.ui.theme.*
+import com.ehansih.vulnscanner.viewmodel.ScanUiState
 
 @Composable
 fun HomeScreen(
@@ -47,7 +47,7 @@ fun HomeScreen(
             Text("VulnScanner", fontSize = 24.sp, fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary)
         }
-        Text("Nokia Networks · Device Vulnerability Scanner",
+        Text("VulnScanner · Device Vulnerability Scanner",
             color = Color.Gray, fontSize = 12.sp, modifier = Modifier.padding(start = 42.dp))
 
         Spacer(Modifier.height(24.dp))

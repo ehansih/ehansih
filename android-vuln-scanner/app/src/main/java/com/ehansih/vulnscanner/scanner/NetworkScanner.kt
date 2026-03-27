@@ -1,15 +1,15 @@
-package com.nokia.vulnscanner.scanner
+package com.ehansih.vulnscanner.scanner
 
 import android.content.Context
 import android.net.ConnectivityManager
-import com.nokia.vulnscanner.data.models.AppLogger
+import com.ehansih.vulnscanner.data.models.AppLogger
 import android.net.NetworkCapabilities
 import android.net.VpnService
 import android.net.wifi.WifiManager
 import android.os.Build
-import com.nokia.vulnscanner.data.models.SecurityFinding
-import com.nokia.vulnscanner.data.models.NetworkSecurityResult
-import com.nokia.vulnscanner.data.models.Severity
+import com.ehansih.vulnscanner.data.models.SecurityFinding
+import com.ehansih.vulnscanner.data.models.NetworkSecurityResult
+import com.ehansih.vulnscanner.data.models.Severity
 import java.net.InetSocketAddress
 import java.net.Proxy
 

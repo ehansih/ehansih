@@ -1,9 +1,9 @@
-package com.nokia.vulnscanner.data.db
+package com.ehansih.vulnscanner.data.db
 
 import android.content.Context
 import androidx.room.*
-import com.nokia.vulnscanner.data.models.CveRecord
-import com.nokia.vulnscanner.data.models.Severity
+import com.ehansih.vulnscanner.data.models.CveRecord
+import com.ehansih.vulnscanner.data.models.Severity
 
 @Database(entities = [CveRecord::class], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)

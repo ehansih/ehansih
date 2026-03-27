@@ -1,6 +1,6 @@
-package com.nokia.vulnscanner.data.api
+package com.ehansih.vulnscanner.data.api
 
-import com.nokia.vulnscanner.BuildConfig
+import com.ehansih.vulnscanner.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

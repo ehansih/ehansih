@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.nokia.vulnscanner"
+    namespace = "com.ehansih.vulnscanner"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.nokia.vulnscanner"
+        applicationId = "com.ehansih.vulnscanner"
         minSdk = 26
         targetSdk = 34
         versionCode = 1

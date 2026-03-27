@@ -1,15 +1,15 @@
-package com.nokia.vulnscanner.scanner
+package com.ehansih.vulnscanner.scanner
 
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
-import com.nokia.vulnscanner.data.api.NvdApi
-import com.nokia.vulnscanner.data.api.bestCvssScore
-import com.nokia.vulnscanner.data.api.englishDescription
-import com.nokia.vulnscanner.data.db.CveDao
-import com.nokia.vulnscanner.data.models.*
-import com.nokia.vulnscanner.data.models.AppLogger
+import com.ehansih.vulnscanner.data.api.NvdApi
+import com.ehansih.vulnscanner.data.api.bestCvssScore
+import com.ehansih.vulnscanner.data.api.englishDescription
+import com.ehansih.vulnscanner.data.db.CveDao
+import com.ehansih.vulnscanner.data.models.*
+import com.ehansih.vulnscanner.data.models.AppLogger
 import kotlinx.coroutines.delay
 
 class AppScanner(

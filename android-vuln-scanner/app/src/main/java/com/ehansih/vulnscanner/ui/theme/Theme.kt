@@ -1,4 +1,4 @@
-package com.nokia.vulnscanner.ui.theme
+package com.ehansih.vulnscanner.ui.theme
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable

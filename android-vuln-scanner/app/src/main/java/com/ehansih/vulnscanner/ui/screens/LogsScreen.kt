@@ -1,4 +1,4 @@
-package com.nokia.vulnscanner.ui.screens
+package com.ehansih.vulnscanner.ui.screens
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -22,10 +22,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nokia.vulnscanner.data.models.AppLogger
-import com.nokia.vulnscanner.data.models.LogEntry
-import com.nokia.vulnscanner.data.models.LogLevel
-import com.nokia.vulnscanner.ui.theme.*
+import com.ehansih.vulnscanner.data.models.AppLogger
+import com.ehansih.vulnscanner.data.models.LogEntry
+import com.ehansih.vulnscanner.data.models.LogLevel
+import com.ehansih.vulnscanner.ui.theme.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable

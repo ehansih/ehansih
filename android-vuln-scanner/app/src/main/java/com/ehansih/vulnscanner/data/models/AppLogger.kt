@@ -1,4 +1,4 @@
-package com.nokia.vulnscanner.data.models
+package com.ehansih.vulnscanner.data.models
 
 import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow

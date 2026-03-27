@@ -1,4 +1,4 @@
-package com.nokia.vulnscanner.ui.components
+package com.ehansih.vulnscanner.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,8 +12,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nokia.vulnscanner.data.models.Severity
-import com.nokia.vulnscanner.ui.theme.*
+import com.ehansih.vulnscanner.data.models.Severity
+import com.ehansih.vulnscanner.ui.theme.*
 
 fun severityColor(s: Severity): Color = when (s) {
     Severity.CRITICAL -> ColorCritical

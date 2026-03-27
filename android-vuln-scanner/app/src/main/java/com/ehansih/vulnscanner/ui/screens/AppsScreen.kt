@@ -1,4 +1,4 @@
-package com.nokia.vulnscanner.ui.screens
+package com.ehansih.vulnscanner.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -15,11 +15,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nokia.vulnscanner.data.models.AppScanResult
-import com.nokia.vulnscanner.data.models.Severity
-import com.nokia.vulnscanner.ui.components.SeverityBadge
-import com.nokia.vulnscanner.ui.components.severityColor
-import com.nokia.vulnscanner.ui.theme.*
+import com.ehansih.vulnscanner.data.models.AppScanResult
+import com.ehansih.vulnscanner.data.models.Severity
+import com.ehansih.vulnscanner.ui.components.SeverityBadge
+import com.ehansih.vulnscanner.ui.components.severityColor
+import com.ehansih.vulnscanner.ui.theme.*
 
 @Composable
 fun AppsScreen(apps: List<AppScanResult>) {
