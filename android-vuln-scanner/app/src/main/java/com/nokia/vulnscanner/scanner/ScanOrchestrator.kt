@@ -32,7 +32,9 @@ class ScanOrchestrator(private val context: Context) {
         }
 
         emit(ScanState.Scanning("Scanning network…", 0.15f))
-        val networkResult = runCatching { netScanner.scan() }.getOrNull()
+        val networkResult = runCatching { netScanner.scan() }.onFailure {
+            android.util.Log.e("ScanOrchestrator", "Network scan failed", it)
+        }.getOrNull()
 
         emit(ScanState.Scanning("Scanning installed apps…", 0.20f))
         val appResults = appScanner.scanInstalledApps { current, total, name ->

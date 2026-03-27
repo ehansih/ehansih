@@ -15,6 +15,7 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0.0"
+        buildConfigField("String", "NVD_BASE_URL", "\"https://services.nvd.nist.gov/rest/json/\"")
     }
 
     buildTypes {
@@ -57,7 +58,6 @@ dependencies {
     implementation(libs.coroutines.android)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
-    implementation(libs.work.runtime.ktx)
     kapt(libs.room.compiler)
     debugImplementation(libs.androidx.ui.tooling)
 }

@@ -184,7 +184,8 @@ class AppScanner(
             }
             if (records.isNotEmpty()) cveDao.insertAll(records)
             records
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            android.util.Log.e("AppScanner", "CVE lookup failed for '$keyword'", e)
             emptyList()
         }
     }

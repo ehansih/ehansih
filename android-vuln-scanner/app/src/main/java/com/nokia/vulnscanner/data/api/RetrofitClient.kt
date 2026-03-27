@@ -1,5 +1,6 @@
 package com.nokia.vulnscanner.data.api
 
+import com.nokia.vulnscanner.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -8,7 +9,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
-    private const val NVD_BASE_URL = "https://services.nvd.nist.gov/rest/json/"
+    private val NVD_BASE_URL = BuildConfig.NVD_BASE_URL
 
     private val okHttpClient = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)

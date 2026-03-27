@@ -12,6 +12,8 @@ import com.nokia.vulnscanner.data.api.englishDescription
 import com.nokia.vulnscanner.data.db.CveDao
 import com.nokia.vulnscanner.data.models.*
 import java.io.File
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class DeviceSecurityScanner(
     private val context: Context,
@@ -93,14 +95,15 @@ class DeviceSecurityScanner(
         ))
 
         // Old patch level check
-        val patchDate = runCatching {
+        val patchDate = run {
             val parts = patchLevel.split("-")
-            val year  = parts[0].toInt()
-            val month = parts[1].toInt()
+            if (parts.size < 2) return@run 0
+            val year  = parts.getOrNull(0)?.toIntOrNull() ?: return@run 0
+            val month = parts.getOrNull(1)?.toIntOrNull() ?: return@run 0
             val curYear  = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
             val curMonth = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) + 1
             ((curYear - year) * 12) + (curMonth - month)
-        }.getOrDefault(0)
+        }
 
         if (patchDate > 6) findings.add(SecurityFinding(
             title          = "Security Patch Outdated ($patchLevel)",
@@ -132,7 +135,7 @@ class DeviceSecurityScanner(
 
     // ── Individual checks ─────────────────────────────────────────────────────
 
-    private fun checkRoot(): Boolean {
+    private suspend fun checkRoot(): Boolean = withContext(Dispatchers.IO) {
         val rootPaths = listOf(
             "/system/app/Superuser.apk",
             "/sbin/su", "/system/bin/su", "/system/xbin/su",
@@ -141,8 +144,8 @@ class DeviceSecurityScanner(
             "/data/local/su", "/su/bin/su",
             "/system/xbin/busybox", "/system/bin/busybox"
         )
-        if (rootPaths.any { File(it).exists() }) return true
-        return try {
+        if (rootPaths.any { File(it).exists() }) return@withContext true
+        try {
             val p = Runtime.getRuntime().exec(arrayOf("su", "-c", "id"))
             val out = p.inputStream.bufferedReader().readText()
             p.destroy()
@@ -222,7 +225,10 @@ class DeviceSecurityScanner(
             }
             if (records.isNotEmpty()) cveDao.insertAll(records)
             records
-        } catch (_: Exception) { emptyList() }
+        } catch (e: Exception) {
+            android.util.Log.e("DeviceScanner", "OS CVE lookup failed for '$keyword'", e)
+            emptyList()
+        }
     }
 
     // ── Score ─────────────────────────────────────────────────────────────────
