@@ -187,8 +187,11 @@ class DeviceSecurityScanner(
             bm?.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK) ==
                     BiometricManager.BIOMETRIC_SUCCESS
         } else {
+            // API 26-28: use FingerprintManager instance via system service
             @Suppress("DEPRECATION")
-            android.hardware.fingerprint.FingerprintManager.isHardwareDetected?.let { false } ?: false
+            val fm = context.getSystemService(android.hardware.fingerprint.FingerprintManager::class.java)
+            @Suppress("DEPRECATION")
+            fm != null && fm.isHardwareDetected && fm.hasEnrolledFingerprints()
         }
     }
 

@@ -134,7 +134,7 @@ private fun OverallScoreCard(summary: ScanSummary) {
     ) {
         Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
             ScoreGauge(score = summary.deviceScore, modifier = Modifier.weight(1f))
-            Divider(modifier = Modifier.height(80.dp).width(1.dp), color = Color.DarkGray)
+            VerticalDivider(modifier = Modifier.height(80.dp).width(1.dp), color = Color.DarkGray)
             Column(Modifier.weight(2f).padding(start = 20.dp)) {
                 Text("Overall Risk", color = Color.Gray, fontSize = 12.sp)
                 SeverityBadge(summary.overallRisk)
