@@ -2,6 +2,8 @@
 build/
 app/build/
 *.apk
+# Allow release APKs in project root for distribution
+!VulnScanner-*.apk
 local.properties
 .idea/
 *.iml

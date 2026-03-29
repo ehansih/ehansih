@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  cti-report:
+    build: .
+    image: cti-report-generator:latest
+    container_name: cti-report-generator
+    volumes:
+      # Mount your manifest.yaml into the container
+      - ./manifest.yaml:/app/manifest/manifest.yaml:ro
+      # Generated report will appear in ./output/
+      - ./output:/app/output
+    # Override date/org via environment — picked up by generate.py
+    environment:
+      - REPORT_ORG=${REPORT_ORG:-Nokia Networks}
+      - REPORT_DATE=${REPORT_DATE:-}

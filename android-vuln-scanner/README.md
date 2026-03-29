@@ -20,6 +20,7 @@ A native Android app that scans your phone for security vulnerabilities, risky a
 | **Installed Apps** | All apps scanned against [NVD CVE database](https://nvd.nist.gov/), dangerous permissions granted, sideloaded/unknown-source apps |
 | **OS Vulnerabilities** | Android version matched against known CVEs |
 | **Network Security** | WiFi encryption type (WEP/WPA/WPA2/WPA3/Open), VPN active, proxy configuration |
+| **Attack Intelligence** | Real-world mobile attack campaigns (FluBot, Pegasus, Cerberus, etc.) matched to your scan findings with documented financial + data-breach impact |
 | **Debug Logs** | Live in-app log viewer — filter by level, copy or share for support |
 
 ---
@@ -121,12 +122,13 @@ android-vuln-scanner/
 │   │   ├── db/                  # Room local CVE cache
 │   │   └── models/              # Data classes + AppLogger
 │   ├── scanner/
-│   │   ├── AppScanner.kt        # Installed app + CVE lookup
+│   │   ├── AppScanner.kt             # Installed app + CVE lookup (with 429 backoff)
+│   │   ├── AttackIntelligenceEngine.kt  # Maps scan findings → real-world attacks
 │   │   ├── DeviceSecurityScanner.kt  # OS/device checks
-│   │   ├── NetworkScanner.kt    # WiFi/VPN checks
-│   │   └── ScanOrchestrator.kt  # Coordinates all scanners
+│   │   ├── NetworkScanner.kt         # WiFi/VPN checks
+│   │   └── ScanOrchestrator.kt       # Coordinates all scanners
 │   ├── ui/
-│   │   ├── screens/             # Compose screens (Home, Device, Apps, Network, Logs)
+│   │   ├── screens/             # Compose screens (Home, Device, Apps, Network, Threats, Logs)
 │   │   ├── components/          # SeverityBadge, ScoreGauge
 │   │   └── theme/               # Dark theme, severity colours
 │   └── viewmodel/
@@ -141,6 +143,8 @@ android-vuln-scanner/
 
 | Version | Changes |
 |---------|---------|
+| **v1.0.4** | **Attack Intelligence Dashboard** — real-world attack campaigns matched to your scan findings with financial and data-breach impact. **Bug fixes:** NVD rate-limit 429 exponential backoff (2s→4s→8s), 1500ms base delay between requests, DNS-failure early-exit (skips all CVE lookups when NVD unreachable instead of 500+ failed calls), CVE network warning banner on Dashboard |
+| v1.0.3 | Package name cleanup (removed Nokia references) |
 | v1.0.2 | In-app debug log screen, real-time scan progress per app |
 | v1.0.1 | Fix: biometric permission crash on scan start |
 | v1.0.0 | Initial release |

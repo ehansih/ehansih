@@ -43,6 +43,7 @@ private val navItems = listOf(
     NavItem("device",  "Device",    Icons.Default.PhoneAndroid),
     NavItem("apps",    "Apps",      Icons.Default.Apps),
     NavItem("network", "Network",   Icons.Default.Wifi),
+    NavItem("threats", "Threats",   Icons.Default.GppBad),
     NavItem("logs",    "Logs",      Icons.Default.Terminal)
 )
 
@@ -70,11 +71,14 @@ fun VulnScannerApp(viewModel: ScanViewModel) {
                         icon  = { Icon(item.icon, contentDescription = item.label) },
                         label = { Text(item.label) },
                         colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor   = MaterialTheme.colorScheme.primary,
-                            selectedTextColor   = MaterialTheme.colorScheme.primary,
+                            selectedIconColor   = if (item.route == "threats") ColorCritical else MaterialTheme.colorScheme.primary,
+                            selectedTextColor   = if (item.route == "threats") ColorCritical else MaterialTheme.colorScheme.primary,
                             unselectedIconColor = Color.Gray,
                             unselectedTextColor = Color.Gray,
-                            indicatorColor      = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                            indicatorColor      = if (item.route == "threats")
+                                ColorCritical.copy(alpha = 0.15f)
+                            else
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
                         )
                     )
                 }
@@ -112,6 +116,9 @@ fun VulnScannerApp(viewModel: ScanViewModel) {
             composable("network") {
                 NetworkScreen(uiState.summary?.networkResult)
             }
+            composable("threats") {
+                AttackIntelScreen(uiState.summary?.attackIntelligence)
+            }
             composable("logs") {
                 LogsScreen()
             }
@@ -122,8 +129,8 @@ fun VulnScannerApp(viewModel: ScanViewModel) {
 @Composable
 private fun NoDataScreen(message: String) {
     Box(
-        modifier           = Modifier.fillMaxSize().background(ColorSurface),
-        contentAlignment   = androidx.compose.ui.Alignment.Center
+        modifier         = Modifier.fillMaxSize().background(ColorSurface),
+        contentAlignment = androidx.compose.ui.Alignment.Center
     ) {
         Text(message, color = Color.Gray)
     }

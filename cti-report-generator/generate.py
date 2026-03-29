@@ -347,17 +347,26 @@ def build_report(manifest_path, output_path, img_dir=None):
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Generate CTI Daily Digest from manifest.yaml')
-    parser.add_argument('--manifest', default='manifest.yaml', help='Path to manifest YAML file')
-    parser.add_argument('--out',      default=None,            help='Output .docx path (auto-named by date if omitted)')
-    parser.add_argument('--img-dir',  default=None,            help='Directory for generated images')
+    parser.add_argument('--manifest', default=os.environ.get('MANIFEST_PATH','manifest.yaml'))
+    parser.add_argument('--out',      default=None)
+    parser.add_argument('--img-dir',  default=None)
     args = parser.parse_args()
 
+    with open(args.manifest) as f:
+        meta = yaml.safe_load(f).get('report',{})
+
+    # Allow env var overrides (useful in Docker)
+    if os.environ.get('REPORT_ORG'):
+        meta['organization'] = os.environ['REPORT_ORG']
+    if os.environ.get('REPORT_DATE'):
+        meta['date'] = os.environ['REPORT_DATE']
+
     if args.out is None:
-        with open(args.manifest) as f:
-            meta = yaml.safe_load(f).get('report',{})
         date_str = meta.get('date', datetime.now().strftime('%d %B %Y'))
         safe_date = date_str.replace(' ','_')
         org_safe  = meta.get('organization','Nokia_Networks').replace(' ','_')
-        args.out = f'output/{org_safe}_CTI_Digest_{safe_date}.docx'
+        args.out = f'/app/output/{org_safe}_CTI_Digest_{safe_date}.docx'
+        if not os.path.exists('/app/output'):
+            args.out = f'output/{org_safe}_CTI_Digest_{safe_date}.docx'
 
     build_report(args.manifest, args.out, args.img_dir)

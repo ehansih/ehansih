@@ -11,13 +11,20 @@ import com.ehansih.vulnscanner.data.db.CveDao
 import com.ehansih.vulnscanner.data.models.*
 import com.ehansih.vulnscanner.data.models.AppLogger
 import kotlinx.coroutines.delay
+import retrofit2.HttpException
+import java.net.UnknownHostException
 
 class AppScanner(
     private val context: Context,
     private val nvdApi: NvdApi,
     private val cveDao: CveDao
 ) {
-    // Permissions considered high-risk on Android
+    // Set to false on first DNS failure — skips all subsequent CVE lookups that session
+    @Volatile private var nvdReachable = true
+
+    // Exposed after scan so ScanOrchestrator can include in ScanSummary
+    val wasNvdReachable: Boolean get() = nvdReachable
+
     private val dangerousPermissions = setOf(
         "android.permission.READ_CONTACTS",
         "android.permission.WRITE_CONTACTS",
@@ -49,19 +56,20 @@ class AppScanner(
         "android.permission.READ_MEDIA_AUDIO"
     )
 
-    // Known sideload installer package names
     private val trustedInstallers = setOf(
-        "com.android.vending",          // Google Play Store
-        "com.amazon.venezia",           // Amazon App Store
+        "com.android.vending",
+        "com.amazon.venezia",
         "com.huawei.appmarket",
         "com.samsung.android.packageinstaller",
-        "com.oppo.market",              // OnePlus / OPPO store
-        "com.nearme.romupdate",         // OxygenOS
+        "com.oppo.market",
+        "com.nearme.romupdate",
     )
 
     suspend fun scanInstalledApps(
         onProgress: suspend (current: Int, total: Int, appName: String) -> Unit
     ): List<AppScanResult> {
+        nvdReachable = true  // reset for each new scan
+
         val pm = context.packageManager
         val packages = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             pm.getInstalledPackages(
@@ -74,20 +82,21 @@ class AppScanner(
             pm.getInstalledPackages(PackageManager.GET_PERMISSIONS or PackageManager.GET_META_DATA)
         }
 
-        // Skip system packages that have no APK on data partition
         val userPackages = packages.filter { it.applicationInfo != null }
-
         AppLogger.i("AppScanner", "Scanning ${userPackages.size} installed packages")
+
         val results = mutableListOf<AppScanResult>()
         userPackages.forEachIndexed { idx, pkg ->
             val appName = pm.getApplicationLabel(pkg.applicationInfo!!).toString()
             onProgress(idx + 1, userPackages.size, appName)
             AppLogger.d("AppScanner", "[${idx+1}/${userPackages.size}] Scanning: $appName")
             results.add(scanSingleApp(pm, pkg, appName))
-            // Respect NVD rate limit — 5 req/s unauthenticated, be conservative
-            delay(250)
+            // 1500ms delay — safely within NVD unauthenticated limit of 5 req/30s
+            delay(1500L)
         }
-        AppLogger.i("AppScanner", "App scan complete — ${results.count { it.riskScore > 0 }} risky apps found")
+
+        val cveStatus = if (nvdReachable) "CVE lookups OK" else "CVE lookups SKIPPED (NVD unreachable — corporate/MDM network may be blocking services.nvd.nist.gov)"
+        AppLogger.i("AppScanner", "App scan complete — ${results.count { it.riskScore > 0 }} risky apps. $cveStatus")
         return results
     }
 
@@ -98,19 +107,17 @@ class AppScanner(
     ): AppScanResult {
         val packageName = pkg.packageName
 
-        // ── Permissions ──────────────────────────────────────────────────────
         val perms = (pkg.requestedPermissions ?: emptyArray()).mapIndexed { i, perm ->
             val granted = pkg.requestedPermissionsFlags?.getOrNull(i)
                 ?.and(PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0
             PermissionEntry(
-                name       = perm,
-                group      = perm.substringAfterLast('.'),
+                name        = perm,
+                group       = perm.substringAfterLast('.'),
                 isDangerous = perm in dangerousPermissions,
-                isGranted  = granted
+                isGranted   = granted
             )
         }
 
-        // ── Install source ────────────────────────────────────────────────────
         val installer = runCatching {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 pm.getInstallSourceInfo(packageName).installingPackageName ?: "Unknown"
@@ -126,10 +133,8 @@ class AppScanner(
             else -> installer
         }
 
-        // ── CVE lookup ────────────────────────────────────────────────────────
         val cves = lookupCves(appName, packageName)
 
-        // ── Risk scoring ──────────────────────────────────────────────────────
         val flags = mutableListOf<String>()
         var riskScore = 0
 
@@ -151,46 +156,64 @@ class AppScanner(
         }
 
         return AppScanResult(
-            packageName  = packageName,
-            appName      = appName,
-            versionName  = pkg.versionName ?: "unknown",
-            versionCode  = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) pkg.longVersionCode else pkg.versionCode.toLong(),
+            packageName   = packageName,
+            appName       = appName,
+            versionName   = pkg.versionName ?: "unknown",
+            versionCode   = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) pkg.longVersionCode else pkg.versionCode.toLong(),
             installedFrom = installSource,
-            permissions  = perms,
-            cves         = cves,
-            riskScore    = riskScore.coerceAtMost(100),
-            flags        = flags
+            permissions   = perms,
+            cves          = cves,
+            riskScore     = riskScore.coerceAtMost(100),
+            flags         = flags
         )
     }
 
     private suspend fun lookupCves(appName: String, packageName: String): List<CveRecord> {
-        // Use app name as keyword; fall back to package suffix
         val keyword = appName.take(30)
 
-        // Check local cache first
         val cached = cveDao.getByProduct(keyword)
         if (cached.isNotEmpty()) return cached
 
-        return try {
-            val response = nvdApi.searchCves(keyword = keyword, resultsPerPage = 10)
-            val records = response.vulnerabilities.map { item ->
-                val cve   = item.cve
-                val score = cve.bestCvssScore()
-                CveRecord(
-                    cveId           = cve.id,
-                    description     = cve.englishDescription(),
-                    cvssScore       = score,
-                    severity        = cvssToSeverity(score),
-                    publishedDate   = cve.published,
-                    affectedProduct = keyword,
-                    references      = cve.references.joinToString(",") { it.url }
-                )
+        // Skip all NVD calls once we know the network/DNS is blocking it
+        if (!nvdReachable) return emptyList()
+
+        var backoffMs = 2000L
+        for (attempt in 1..3) {
+            try {
+                val response = nvdApi.searchCves(keyword = keyword, resultsPerPage = 10)
+                val records = response.vulnerabilities.map { item ->
+                    val cve   = item.cve
+                    val score = cve.bestCvssScore()
+                    CveRecord(
+                        cveId           = cve.id,
+                        description     = cve.englishDescription(),
+                        cvssScore       = score,
+                        severity        = cvssToSeverity(score),
+                        publishedDate   = cve.published,
+                        affectedProduct = keyword,
+                        references      = cve.references.joinToString(",") { it.url }
+                    )
+                }
+                if (records.isNotEmpty()) cveDao.insertAll(records)
+                return records
+            } catch (e: HttpException) {
+                if (e.code() == 429) {
+                    AppLogger.w("AppScanner", "NVD rate limited (429), backing off ${backoffMs}ms (attempt $attempt/3)")
+                    delay(backoffMs)
+                    backoffMs *= 2  // exponential: 2s → 4s → 8s
+                } else {
+                    AppLogger.e("AppScanner", "CVE lookup HTTP ${e.code()} for '$keyword'")
+                    return emptyList()
+                }
+            } catch (e: UnknownHostException) {
+                AppLogger.w("AppScanner", "NVD DNS unreachable — disabling CVE lookups for this scan session")
+                nvdReachable = false
+                return emptyList()
+            } catch (e: Exception) {
+                AppLogger.e("AppScanner", "CVE lookup failed for '$keyword': ${e.message}", e)
+                return emptyList()
             }
-            if (records.isNotEmpty()) cveDao.insertAll(records)
-            records
-        } catch (e: Exception) {
-            AppLogger.e("AppScanner", "CVE lookup failed for '$keyword': ${e.message}", e)
-            emptyList()
         }
+        return emptyList()
     }
 }

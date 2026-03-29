@@ -24,8 +24,8 @@ data class CveRecord(
     val cvssScore: Double,
     val severity: Severity,
     val publishedDate: String,
-    val affectedProduct: String,   // keyword used to find this CVE
-    val references: String         // comma-separated URLs
+    val affectedProduct: String,
+    val references: String
 )
 
 // ── App scan result ──────────────────────────────────────────────────────────
@@ -35,11 +35,11 @@ data class AppScanResult(
     val appName: String,
     val versionName: String,
     val versionCode: Long,
-    val installedFrom: String,       // Play Store / Unknown / Sideloaded
+    val installedFrom: String,
     val permissions: List<PermissionEntry>,
     val cves: List<CveRecord>,
-    val riskScore: Int,              // 0-100
-    val flags: List<String>          // human-readable risk flags
+    val riskScore: Int,
+    val flags: List<String>
 )
 
 data class PermissionEntry(
@@ -63,7 +63,7 @@ data class DeviceSecurityResult(
     val isBiometricEnabled: Boolean,
     val isVerifyAppsEnabled: Boolean,
     val osVulnerabilities: List<CveRecord>,
-    val securityScore: Int,          // 0-100
+    val securityScore: Int,
     val findings: List<SecurityFinding>
 )
 
@@ -79,11 +79,43 @@ data class SecurityFinding(
 data class NetworkSecurityResult(
     val ssid: String,
     val bssid: String,
-    val securityType: String,        // WEP / WPA / WPA2 / WPA3 / Open
+    val securityType: String,
     val isVpnActive: Boolean,
     val isProxySet: Boolean,
     val tlsVersion: String,
     val findings: List<SecurityFinding>
+)
+
+// ── Attack Intelligence ───────────────────────────────────────────────────────
+
+enum class AttackType(val label: String) {
+    BANKING_TROJAN("Banking Trojan"),
+    SPYWARE("Spyware"),
+    RANSOMWARE("Ransomware"),
+    DATA_THEFT("Data Theft"),
+    SUBSCRIPTION_FRAUD("Subscription Fraud"),
+    REMOTE_ACCESS("Remote Access Trojan"),
+    STALKERWARE("Stalkerware")
+}
+
+data class AttackIncident(
+    val name: String,
+    val year: String,
+    val attackType: AttackType,
+    val affectedDevices: String,
+    val financialImpact: String,
+    val financialImpactValue: Long,     // USD value for aggregation
+    val dataBreachImpact: String,
+    val description: String,
+    val relevantTrigger: String,        // key used to match against scan triggers
+    val severity: Severity
+)
+
+data class AttackIntelligence(
+    val relevantAttacks: List<AttackIncident>,
+    val totalFinancialExposure: String, // formatted, e.g. "$465M+"
+    val criticalAttackCount: Int,
+    val riskSummary: String
 )
 
 // ── Full scan summary ─────────────────────────────────────────────────────────
@@ -98,5 +130,7 @@ data class ScanSummary(
     val overallRisk: Severity,
     val appResults: List<AppScanResult>,
     val deviceResult: DeviceSecurityResult,
-    val networkResult: NetworkSecurityResult?
+    val networkResult: NetworkSecurityResult?,
+    val cveNetworkAvailable: Boolean = true,
+    val attackIntelligence: AttackIntelligence? = null
 )

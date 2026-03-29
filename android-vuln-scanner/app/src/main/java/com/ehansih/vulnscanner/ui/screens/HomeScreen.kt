@@ -72,6 +72,11 @@ fun HomeScreen(
 
         // Results summary (when available)
         uiState.summary?.let { summary ->
+            // CVE network warning — shown when NVD was unreachable during scan
+            if (!summary.cveNetworkAvailable) {
+                CveNetworkWarning()
+                Spacer(Modifier.height(12.dp))
+            }
             OverallScoreCard(summary)
             Spacer(Modifier.height(16.dp))
             SummaryStatsRow(summary)
@@ -235,6 +240,33 @@ private fun PlaceholderCard() {
             Text("No scan data yet", color = Color.Gray, fontSize = 14.sp)
             Text("Tap START FULL SCAN to check your device",
                 color = Color.DarkGray, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
+        }
+    }
+}
+
+@Composable
+private fun CveNetworkWarning() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors   = CardDefaults.cardColors(containerColor = ColorMedium.copy(alpha = 0.12f)),
+        shape    = RoundedCornerShape(10.dp)
+    ) {
+        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.CloudOff, null,
+                tint = ColorMedium, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(10.dp))
+            Column {
+                Text("CVE Lookup Unavailable", color = ColorMedium, fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold)
+                Text(
+                    "NVD API was unreachable (DNS blocked — likely corporate/MDM network). " +
+                    "Risk scores reflect permissions and install source only. " +
+                    "Rescan on a personal network to fetch live CVE data.",
+                    color = ColorMedium.copy(alpha = 0.8f),
+                    fontSize = 11.sp,
+                    lineHeight = 16.sp
+                )
+            }
         }
     }
 }

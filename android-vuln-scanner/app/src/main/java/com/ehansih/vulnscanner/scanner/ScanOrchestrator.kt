@@ -42,9 +42,13 @@ class ScanOrchestrator(private val context: Context) {
 
         send(ScanState.Scanning("Scanning installed apps…", 0.20f))
         val appResults = appScanner.scanInstalledApps { current, total, name ->
-            val progress = 0.20f + (current.toFloat() / total.toFloat()) * 0.75f
+            val progress = 0.20f + (current.toFloat() / total.toFloat()) * 0.70f
             send(ScanState.Scanning("Scanning [$current/$total]: $name", progress))
         }
+
+        send(ScanState.Scanning("Analysing attack intelligence…", 0.92f))
+        val attackIntel = AttackIntelligenceEngine.generate(appResults, deviceResult)
+        AppLogger.i("Orchestrator", "Attack intel: ${attackIntel.relevantAttacks.size} campaigns matched, exposure ${attackIntel.totalFinancialExposure}")
 
         send(ScanState.Scanning("Calculating risk scores…", 0.97f))
 
@@ -62,18 +66,20 @@ class ScanOrchestrator(private val context: Context) {
         }
 
         val summary = ScanSummary(
-            totalApps    = appResults.size,
-            vulnerableApps = vulnerableApps,
-            criticalCves = criticalCves,
-            highCves     = highCves,
-            deviceScore  = deviceResult.securityScore,
-            overallRisk  = overallRisk,
-            appResults   = appResults.sortedByDescending { it.riskScore },
-            deviceResult = deviceResult,
-            networkResult = networkResult
+            totalApps           = appResults.size,
+            vulnerableApps      = vulnerableApps,
+            criticalCves        = criticalCves,
+            highCves            = highCves,
+            deviceScore         = deviceResult.securityScore,
+            overallRisk         = overallRisk,
+            appResults          = appResults.sortedByDescending { it.riskScore },
+            deviceResult        = deviceResult,
+            networkResult       = networkResult,
+            cveNetworkAvailable = appScanner.wasNvdReachable,
+            attackIntelligence  = attackIntel
         )
 
-        AppLogger.i("Orchestrator", "=== Scan complete — risk=${overallRisk.name} criticalCVEs=$criticalCves highCVEs=$highCves ===")
+        AppLogger.i("Orchestrator", "=== Scan complete — risk=${overallRisk.name} criticalCVEs=$criticalCves highCVEs=$highCves cveNetwork=${appScanner.wasNvdReachable} ===")
         send(ScanState.Done(summary))
     }
 }

@@ -13,8 +13,8 @@ android {
         applicationId = "com.ehansih.vulnscanner"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 4
+        versionName = "1.0.4"
         buildConfigField("String", "NVD_BASE_URL", "\"https://services.nvd.nist.gov/rest/json/\"")
     }
 
