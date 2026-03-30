@@ -1,9 +1,11 @@
 package com.ehansih.vulnscanner.scanner
 
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
+import com.ehansih.vulnscanner.BuildConfig
 import com.ehansih.vulnscanner.data.api.NvdApi
 import com.ehansih.vulnscanner.data.api.bestCvssScore
 import com.ehansih.vulnscanner.data.api.englishDescription
@@ -82,8 +84,14 @@ class AppScanner(
             pm.getInstalledPackages(PackageManager.GET_PERMISSIONS or PackageManager.GET_META_DATA)
         }
 
-        val userPackages = packages.filter { it.applicationInfo != null }
-        AppLogger.i("AppScanner", "Scanning ${userPackages.size} installed packages")
+        // Skip pure system apps — only scan user-installed + updated system apps
+        val userPackages = packages.filter { pkg ->
+            val ai = pkg.applicationInfo ?: return@filter false
+            val isSystem = (ai.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+            val isUpdated = (ai.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
+            !isSystem || isUpdated
+        }
+        AppLogger.i("AppScanner", "Scanning ${userPackages.size} user/updated packages (system apps skipped)")
 
         val results = mutableListOf<AppScanResult>()
         userPackages.forEachIndexed { idx, pkg ->
@@ -91,8 +99,9 @@ class AppScanner(
             onProgress(idx + 1, userPackages.size, appName)
             AppLogger.d("AppScanner", "[${idx+1}/${userPackages.size}] Scanning: $appName")
             results.add(scanSingleApp(pm, pkg, appName))
-            // 1500ms delay — safely within NVD unauthenticated limit of 5 req/30s
-            delay(1500L)
+            // NVD rate limits: 5 req/30s unauthenticated (≥6200ms), 50 req/30s with API key (≥700ms)
+            val nvdDelay = if (BuildConfig.NVD_API_KEY.isNotEmpty()) 700L else 6200L
+            delay(nvdDelay)
         }
 
         val cveStatus = if (nvdReachable) "CVE lookups OK" else "CVE lookups SKIPPED (NVD unreachable — corporate/MDM network may be blocking services.nvd.nist.gov)"

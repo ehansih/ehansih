@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Dark teal background for the app icon -->
+<!-- Deep navy background for English Knight logo -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#121212" />
+    <solid android:color="#0D1B2A" />
 </shape>

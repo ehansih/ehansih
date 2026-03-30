@@ -13,9 +13,14 @@ android {
         applicationId = "com.ehansih.vulnscanner"
         minSdk = 26
         targetSdk = 34
-        versionCode = 4
-        versionName = "1.0.4"
+        versionCode = 6
+        versionName = "1.2.0"
         buildConfigField("String", "NVD_BASE_URL", "\"https://services.nvd.nist.gov/rest/json/\"")
+        buildConfigField("String", "VT_BASE_URL",  "\"https://www.virustotal.com/api/v3/\"")
+        buildConfigField("String", "HIBP_BASE_URL", "\"https://haveibeenpwned.com/api/v3/\"")
+        // Set your NVD API key here for 50 req/30s limit (vs 5 req/30s unauthenticated)
+        // Get a free key at: https://nvd.nist.gov/developers/request-an-api-key
+        buildConfigField("String", "NVD_API_KEY", "\"\"")
     }
 
     buildTypes {

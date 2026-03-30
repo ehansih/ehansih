@@ -5,6 +5,8 @@ import com.ehansih.vulnscanner.data.api.RetrofitClient
 import com.ehansih.vulnscanner.data.db.CveDatabase
 import com.ehansih.vulnscanner.data.models.AppLogger
 import com.ehansih.vulnscanner.data.models.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 
@@ -25,20 +27,24 @@ class ScanOrchestrator(private val context: Context) {
     fun runFullScan(): Flow<ScanState> = channelFlow {
         AppLogger.clear()
         AppLogger.i("Orchestrator", "=== Full scan started ===")
-        send(ScanState.Scanning("Checking device security…", 0.05f))
+        // Run device and network scans in parallel for speed
+        send(ScanState.Scanning("Checking device & network security…", 0.05f))
 
-        val deviceResult = try {
-            devScanner.scan()
+        val (deviceResult, networkResult) = try {
+            coroutineScope {
+                val deviceDeferred = async { devScanner.scan() }
+                val networkDeferred = async {
+                    runCatching { netScanner.scan() }.onFailure {
+                        android.util.Log.e("ScanOrchestrator", "Network scan failed", it)
+                    }.getOrNull()
+                }
+                deviceDeferred.await() to networkDeferred.await()
+            }
         } catch (e: Exception) {
             AppLogger.e("Orchestrator", "Device scan crashed", e)
             send(ScanState.Error("Device scan failed: ${e.message}"))
             return@channelFlow
         }
-
-        send(ScanState.Scanning("Scanning network…", 0.15f))
-        val networkResult = runCatching { netScanner.scan() }.onFailure {
-            android.util.Log.e("ScanOrchestrator", "Network scan failed", it)
-        }.getOrNull()
 
         send(ScanState.Scanning("Scanning installed apps…", 0.20f))
         val appResults = appScanner.scanInstalledApps { current, total, name ->

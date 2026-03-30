@@ -1,18 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Shield icon foreground — matches app theme (cyan/teal primary) -->
+<!--
+  English Knight — heraldic chess-knight horse-head on a royal blue shield
+  Gold (#FFD700) silhouette, deep navy background, crowned crest
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Outer shield -->
+
+    <!-- Royal blue heraldic shield -->
     <path
-        android:fillColor="#64FFDA"
-        android:pathData="M54,18 L82,28 L82,52 Q82,70 54,90 Q26,70 26,52 L26,28 Z" />
-    <!-- Inner check mark -->
+        android:fillColor="#CC0D47A1"
+        android:pathData="M54,10 L88,22 L88,55 Q88,82 54,100 Q20,82 20,55 L20,22 Z" />
+
+    <!-- Gold shield border -->
     <path
-        android:fillColor="#121212"
-        android:strokeColor="#121212"
-        android:strokeWidth="3"
-        android:pathData="M40,54 L49,63 L68,44" />
+        android:fillColor="#00000000"
+        android:strokeColor="#FFD700"
+        android:strokeWidth="2.5"
+        android:pathData="M54,12 L86,23 L86,55 Q86,80 54,98 Q22,80 22,55 L22,23 Z" />
+
+    <!-- Knight horse-head silhouette (chess knight profile, facing right) -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M38,80 L40,65 Q40,58 46,54 L44,48 Q43,42 48,38 L46,33 Q47,26 54,23 Q60,21 66,24 Q72,27 73,33 L75,34 Q79,35 78,40 L76,41 Q79,43 77,47 L74,47 Q75,52 71,55 L68,56 Q66,61 62,63 L63,68 L70,68 L71,80 Z" />
+
+    <!-- Knight eye (dark blue) -->
+    <path
+        android:fillColor="#0D1B2A"
+        android:pathData="M63,31 Q67,30 68,33 Q69,36 66,37 Q63,38 62,35 Q61,33 63,31 Z" />
+
+    <!-- Mane / neck detail (darker gold) -->
+    <path
+        android:fillColor="#CC8A2B"
+        android:pathData="M46,54 Q43,57 41,62 L40,65 Q42,61 46,58 Z" />
+
+    <!-- Crown / crest on top of head -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M48,23 L48,17 L52,21 L56,15 L60,21 L63,17 L63,23 Z" />
+
+    <!-- Crown jewel (royal blue gem) -->
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M54,16 L56,19 L58,19 L57,21 L58,23 L56,22 L54,23 L52,22 L50,23 L51,21 L50,19 L52,19 Z" />
+
 </vector>

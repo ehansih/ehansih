@@ -16,6 +16,20 @@ val ColorSurface  = Color(0xFF121212)
 val ColorCard     = Color(0xFF1E1E1E)
 val ColorOnCard   = Color(0xFFEEEEEE)
 
+// Gradient colors for dashboard
+val GradientStart  = Color(0xFF0D1B2A)  // deep navy
+val GradientMid    = Color(0xFF1B2838)  // dark steel blue
+val GradientEnd    = Color(0xFF0A1628)  // midnight
+
+// Feature card accent colors
+val ColorBlue      = Color(0xFF2196F3)
+val ColorPurple    = Color(0xFF9C27B0)
+val ColorTeal      = Color(0xFF00BCD4)
+val ColorOrange    = Color(0xFFFF5722)
+val ColorGold      = Color(0xFFFFD700)
+val ColorSilver    = Color(0xFFC0C0C0)
+val ColorNavy      = Color(0xFF0D47A1)
+
 private val DarkColorScheme = darkColorScheme(
     primary         = Color(0xFF64FFDA),
     onPrimary       = Color(0xFF000000),

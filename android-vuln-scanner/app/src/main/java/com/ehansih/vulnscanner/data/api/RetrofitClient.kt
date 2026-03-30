@@ -15,11 +15,13 @@ object RetrofitClient {
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
         .addInterceptor { chain ->
-            // NVD requests an API key header for higher rate limits (optional but polite)
-            val req = chain.request().newBuilder()
+            val builder = chain.request().newBuilder()
                 .addHeader("User-Agent", "VulnScanner-Android/1.0")
-                .build()
-            chain.proceed(req)
+            // NVD API key: 50 req/30s with key vs 5 req/30s without
+            if (BuildConfig.NVD_API_KEY.isNotEmpty()) {
+                builder.addHeader("apiKey", BuildConfig.NVD_API_KEY)
+            }
+            chain.proceed(builder.build())
         }
         .addInterceptor(HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BASIC

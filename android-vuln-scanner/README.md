@@ -143,7 +143,9 @@ android-vuln-scanner/
 
 | Version | Changes |
 |---------|---------|
-| **v1.0.4** | **Attack Intelligence Dashboard** — real-world attack campaigns matched to your scan findings with financial and data-breach impact. **Bug fixes:** NVD rate-limit 429 exponential backoff (2s→4s→8s), 1500ms base delay between requests, DNS-failure early-exit (skips all CVE lookups when NVD unreachable instead of 500+ failed calls), CVE network warning banner on Dashboard |
+| **v1.2.0** | **Performance & NVD fix:** Device scan + network scan now run in parallel. System apps filtered out (only user-installed + updated apps scanned — significantly fewer apps). **NVD rate-limit fix:** corrected delay to 6200ms unauthenticated (was 1500ms — was exceeding 5 req/30s limit causing 429 blocks). NVD API key support added (`NVD_API_KEY` in build.gradle.kts) — 700ms delay with key (50 req/30s). |
+| v1.1.0 | versionCode bump / internal build |
+| v1.0.4 | **Attack Intelligence Dashboard** — real-world attack campaigns matched to your scan findings with financial and data-breach impact. **Bug fixes:** NVD rate-limit 429 exponential backoff (2s→4s→8s), DNS-failure early-exit, CVE network warning banner on Dashboard |
 | v1.0.3 | Package name cleanup (removed Nokia references) |
 | v1.0.2 | In-app debug log screen, real-time scan progress per app |
 | v1.0.1 | Fix: biometric permission crash on scan start |
