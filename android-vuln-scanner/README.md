@@ -143,7 +143,8 @@ android-vuln-scanner/
 
 | Version | Changes |
 |---------|---------|
-| **v1.2.0** | **Performance & NVD fix:** Device scan + network scan now run in parallel. System apps filtered out (only user-installed + updated apps scanned — significantly fewer apps). **NVD rate-limit fix:** corrected delay to 6200ms unauthenticated (was 1500ms — was exceeding 5 req/30s limit causing 429 blocks). NVD API key support added (`NVD_API_KEY` in build.gradle.kts) — 700ms delay with key (50 req/30s). |
+| **v1.3.0** | **NVD API key activated** — scan delay reduced from 6200ms → 700ms per app (50 req/30s authenticated limit). 60 apps now scan in ~42s instead of ~6 minutes. |
+| v1.2.0 | Performance & NVD fix: parallel device+network scan, system apps filtered, NVD rate-limit corrected, API key support added. |
 | v1.1.0 | versionCode bump / internal build |
 | v1.0.4 | **Attack Intelligence Dashboard** — real-world attack campaigns matched to your scan findings with financial and data-breach impact. **Bug fixes:** NVD rate-limit 429 exponential backoff (2s→4s→8s), DNS-failure early-exit, CVE network warning banner on Dashboard |
 | v1.0.3 | Package name cleanup (removed Nokia references) |
